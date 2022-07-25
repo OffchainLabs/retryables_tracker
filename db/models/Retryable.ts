@@ -5,7 +5,8 @@ const Retryable = db.define("Retryable", {
   // Model attributes are defined here
   status: DataTypes.INTEGER,
   l1TxHash: DataTypes.STRING,
-  msgIndex: DataTypes.INTEGER
+  msgIndex: DataTypes.INTEGER,
+  ArbchainId: DataTypes.INTEGER /**TODO: this shouldn't be necessary */
 });
 
 export default Retryable;

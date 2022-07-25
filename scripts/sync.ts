@@ -15,7 +15,6 @@ import {
 
 const syncChain = async (chainID: number, maxBlocks: number) => {
   const chain = await ArbChain.findByPk(chainID);
-  console.log(chain);
   if (!chain) throw new Error(`Chain ${chainID} not found`);
 
   const lastBlockChecked = (await chain.getDataValue(
@@ -23,7 +22,6 @@ const syncChain = async (chainID: number, maxBlocks: number) => {
   )) as number;
   const l1rpcUrl = await chain.getDataValue("l1rpcURL");
   const l2rpcUrl = await chain.getDataValue("l2rpcURL");
-  console.log(l1rpcUrl, l2rpcUrl);
 
   const inboxAddress = await chain.getDataValue("inboxAddress");
 
@@ -65,10 +63,11 @@ const syncChain = async (chainID: number, maxBlocks: number) => {
           status,
           l1TxHash,
           msgIndex,
-          arbChain: chain
+          ArbchainId: chainID
         });
       }
     }
+    await chain.setDataValue("lastBlockChecked", rec.blockNumber - 1);
   }
   await chain.setDataValue("lastBlockChecked", toBlock);
   return {
@@ -76,4 +75,9 @@ const syncChain = async (chainID: number, maxBlocks: number) => {
   };
 };
 
+const checkAndUpdate = (chainID: number,)=>{
+
+}
+
 syncChain(42161, 1000);
+
