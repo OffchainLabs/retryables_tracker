@@ -12,27 +12,31 @@ import {
   InboxMessageDeliveredEvent,
   Inbox
 } from "@arbitrum/sdk/dist/lib/abi/Inbox";
+const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-const syncChain = async (chainID: number, maxBlocks: number) => {
+const blocksFromChainTip = 120;
+
+const scanForRetryables = async (
+  chainID: number,
+  blocksPerInboxQuery: number
+) => {
   const chain = await ArbChain.findByPk(chainID);
   if (!chain) throw new Error(`Chain ${chainID} not found`);
 
   const lastBlockChecked = (await chain.getDataValue(
     "lastBlockChecked"
   )) as number;
-  const l1rpcUrl = await chain.getDataValue("l1rpcURL");
-  const l2rpcUrl = await chain.getDataValue("l2rpcURL");
+  const { l1rpcURL, l2rpcURL, inboxAddress } = chain.toJSON();
 
-  const inboxAddress = await chain.getDataValue("inboxAddress");
-
-  const l1Provider = new providers.JsonRpcProvider(l1rpcUrl);
-  const l2Provider = new providers.JsonRpcProvider(l2rpcUrl);
+  const l1Provider = new providers.JsonRpcProvider(l1rpcURL);
+  const l2Provider = new providers.JsonRpcProvider(l2rpcURL);
 
   const currentL1Block = await l1Provider.getBlockNumber();
-  const limit = currentL1Block - 4 * 30;
-  const toBlock = Math.min(lastBlockChecked + maxBlocks, limit);
+  const limit = currentL1Block - blocksFromChainTip;
+  const toBlock = Math.min(lastBlockChecked + blocksPerInboxQuery, limit);
 
   const eventFetcher = new EventFetcher(l1Provider);
+  console.log("checking", lastBlockChecked, toBlock);
 
   const inboxDeliveredLogs = await eventFetcher.getEvents<
     Inbox,
@@ -67,17 +71,65 @@ const syncChain = async (chainID: number, maxBlocks: number) => {
         });
       }
     }
-    await chain.setDataValue("lastBlockChecked", rec.blockNumber - 1);
+    await chain.update({
+      lastBlockChecked: rec.blockNumber - 1
+    });
   }
-  await chain.setDataValue("lastBlockChecked", toBlock);
+  console.warn("done", toBlock);
+
+  await chain.update({
+    lastBlockChecked: toBlock
+  });
+
   return {
-    finished: toBlock === limit
+    finished: toBlock === limit,
+    toBlock
   };
 };
 
-const checkAndUpdate = (chainID: number,)=>{
+const syncRetryables = async (chainID: number, blocksPerInboxQuery: number) => {
+  while (true) {
+    const { finished, toBlock } = await scanForRetryables(
+      chainID,
+      blocksPerInboxQuery
+    );
+    if (finished) {
+      await wait(blocksFromChainTip * 15 * 100);
+    }
+  }
+};
 
-}
+const updateStatus = async (chainID: number) => {
+  const chain = await ArbChain.findByPk(chainID);
+  if (!chain) throw new Error(`Chain ${chainID} not found`);
+  const { l1rpcURL, l2rpcURL } = chain.toJSON();
 
-syncChain(42161, 1000);
+  const l1Provider = new providers.JsonRpcProvider(l1rpcURL);
+  const l2Provider = new providers.JsonRpcProvider(l2rpcURL);
 
+  const res = await Retryable.findAll({
+    where: {
+      ArbchainId: chainID,
+      status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
+    }
+  });
+
+  for (let message of res) {
+    const { l1TxHash, msgIndex } = message.toJSON();
+    const rec = new L1TransactionReceipt(
+      await l1Provider.getTransactionReceipt(l1TxHash)
+    );
+    const l1ToL2Message = (await rec.getL1ToL2Messages(l2Provider))[msgIndex];
+    if (!l1ToL2Message) throw new Error("Msg not found");
+    const status = await l1ToL2Message.status();
+    if (status !== L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2) {
+      console.log("status updated for", message);
+      await message.update({
+        status
+      });
+    } else {
+    }
+  }
+};
+// sync(42161, 1000);
+updateStatus(42161);
