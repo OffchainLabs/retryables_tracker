@@ -33,12 +33,12 @@ app.get(
       "msgIndex",
       "ArbchainId",
       "createdAt",
-      "l1Til1TimestampCreated"
+      "l1TimestampCreated"
     ];
     const arb1Results = await Retryable.findAll({
       where: {
         ArbchainId: 42161,
-        status: 4
+        status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
       },
       attributes,
     });
@@ -55,7 +55,8 @@ app.get(
       data: {
         42161: arb1Results,
         42170: novaResults
-      }
+      },
+      totalUnredeemed: novaResults.length + arb1Results.length
     });
   }
 );
