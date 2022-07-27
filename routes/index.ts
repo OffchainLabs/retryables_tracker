@@ -32,7 +32,7 @@ app.get(
       "msgIndex",
       "ArbchainId",
       "createdAt",
-      "l1BlockNumber"
+      "l1Til1TimestampCreated"
     ];
     const arb1Results = await Retryable.findAll({
       where: {

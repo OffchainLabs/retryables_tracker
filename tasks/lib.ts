@@ -1,4 +1,4 @@
-import  { Arbchain as ArbChain, Retryable}  from "../db/models";
+import { Arbchain as ArbChain, Retryable } from "../db/models";
 
 import { providers } from "ethers";
 import {
@@ -47,9 +47,9 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
     where: {
       [Op.or]: chainIDs.map(id => ({ id }))
     }
-  })
-  if (res.length !== chainIDs.length){
-    throw new Error('Unrecogized chain id')
+  });
+  if (res.length !== chainIDs.length) {
+    throw new Error("Unrecognized chain id");
   }
 
   const unredeemed = await Retryable.findAll({
@@ -57,14 +57,23 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
       [Op.or]: chainIDs.map(ArbchainId => ({ ArbchainId })),
       status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
     },
-    order: ['l1BlockNumber']
+    order: ["l1TimestampCreated"]
   });
-  if ( unredeemed.length > 0) {
-    const eldest =  unredeemed[0]
+  if (unredeemed.length > 0) {
     // TODO
-    log(`Found ${unredeemed.length} unredeemed tickets; eldest was created at `, 2);
+    const { l1TimestampCreated } = unredeemed[0].toJSON();
+    console.log(l1TimestampCreated);
+
+    log(
+      `Found ${unredeemed.length} unredeemed ticket${
+        unredeemed.length > 1 ? "s" : ""
+      };${unredeemed.length > 1 ? " eldest" : ""} initiated at ${new Date(
+        1658732077
+      ).toString()}`,
+      2
+    );
   } else {
-    log("Nothing to redeemed");
+    log("Nothing to redeem");
   }
 };
 
@@ -72,9 +81,9 @@ const scanForRetryables = async (
   chainID: number,
   blocksPerInboxQuery: number,
   blocksFromChainTip: number
-) => {  
+) => {
   const chain = await ArbChain.findByPk(chainID);
-  if (!chain) throw new Error(`Chain ${chainID} not found`);  
+  if (!chain) throw new Error(`Chain ${chainID} not found`);
   const lastBlockChecked = (await chain.getDataValue(
     "lastBlockChecked"
   )) as number;
@@ -115,12 +124,13 @@ const scanForRetryables = async (
       const message = messages[msgIndex];
       let status = await message.status();
       if (status !== L1ToL2MessageStatus.REDEEMED) {
+        const { timestamp } = await l1Provider.getBlock(rec.blockNumber);
         Retryable.create({
           status,
           l1TxHash,
           msgIndex,
           ArbchainId: chainID,
-          l1BlockNumber: rec.blockNumber
+          l1TimestampCreated: timestamp
         });
 
         // live report expiration or failure
@@ -129,12 +139,12 @@ const scanForRetryables = async (
             `Retryable expired: l1tx: ${l1TxHash} msg Index: ${msgIndex} chain: ${chainID}`,
             2
           );
-        } else if (status === L1ToL2MessageStatus.CREATION_FAILED){
+        } else if (status === L1ToL2MessageStatus.CREATION_FAILED) {
           log(
             `Severe error — ticket creation failed: l1tx: ${l1TxHash} msg Index: ${msgIndex} chain: ${chainID}`,
             2
           );
-        } 
+        }
       }
     }
     await chain.update({
