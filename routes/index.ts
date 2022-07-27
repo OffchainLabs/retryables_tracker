@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import db from "../db/config";
-import Arbchain from "../db/models/Arbchain";
-import Retryable from "../db/models/Retryable";
+import { Arbchain, Retryable } from "../db/models";
+import { L1ToL2MessageStatus } from "@arbitrum/sdk";
 
 const app: Application = express();
 const port = 3000;
@@ -27,18 +27,27 @@ app.get(
 app.get(
   "/unredeemed/mainnet",
   async (req: Request, res: Response): Promise<Response> => {
+    const attributes = [
+      "l1TxHash",
+      "msgIndex",
+      "ArbchainId",
+      "createdAt",
+      "l1BlockNumber"
+    ];
     const arb1Results = await Retryable.findAll({
       where: {
         ArbchainId: 42161,
-        status: 3
-      }
+        status: 4
+      },
+      attributes,
     });
 
     const novaResults = await Retryable.findAll({
       where: {
         ArbchainId: 42170,
-        status: 3
-      }
+        status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
+      },
+      attributes
     });
 
     return res.status(200).json({
@@ -54,7 +63,7 @@ app.get(
   "/unredeemed/:chainID",
   async (req: Request, res: Response): Promise<Response> => {
     return res.status(200).send({
-      message: `hi`
+      message: `todo`
     });
   }
 );
@@ -66,5 +75,4 @@ try {
 } catch (error) {
   console.log(`Error occurred:`);
   console.log(error);
-  
 }

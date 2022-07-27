@@ -6,13 +6,15 @@
   "scripts": {
     "init_db": "yarn ts-node db/resetDB.ts && yarn ts-node db/initChains.ts",
     "sync": "yarn tsc && node dist/tasks/sync.js",
-    "update": "yarn tsc && node dist/tasks/update.js"
+    "update": "yarn tsc && node dist/tasks/update.js",
+    "report": "yarn tsc && node dist/tasks/report.js"
 
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@arbitrum/sdk": "^2.0.5",
+    "@slack/web-api": "^6.7.2",
     "dotenv": "^16.0.1",
     "ethers": "^5.6.9",
     "express": "^4.18.1",

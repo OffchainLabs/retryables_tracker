@@ -1,5 +1,4 @@
-import ArbChain from "../db/models/Arbchain";
-import Retryable from "../db/models/Retryable";
+import  { Arbchain as ArbChain, Retryable}  from "../db/models";
 
 import { providers } from "ethers";
 import {
@@ -12,16 +11,70 @@ import {
   InboxMessageDeliveredEvent,
   Inbox
 } from "@arbitrum/sdk/dist/lib/abi/Inbox";
+
+import { WebClient } from "@slack/web-api";
+import dotenv from "dotenv";
+import { Op } from "sequelize";
+
+dotenv.config();
+
+const slackToken = process.env.SLACK_TOKEN;
+const slackChannel_1 = process.env.SLACK_CHANNEL_1 as string;
+const slackChannel_2 = process.env.SLACK_CHANNEL_2 as string;
 export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+const web = new WebClient(slackToken);
+type LogLevel = 0 | 1 | 2;
+
+export const log = (text: string, logLevel: LogLevel = 0) => {
+  console.log();
+  console.log(text);
+  console.log();
+
+  if (process.env.ENABLE_SLACK !== "true" || logLevel === 0) return;
+  return web.chat.postMessage({
+    text,
+    channel: logLevel === 1 ? slackChannel_1 : slackChannel_2
+  });
+};
+
+export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
+  const chainIDs =
+    typeof chaindIDOrIds === "number" ? [chaindIDOrIds] : chaindIDOrIds;
+  console.warn("chaindIDOrIds", chaindIDOrIds);
+  // sanity
+  const res = await ArbChain.findAll({
+    where: {
+      [Op.or]: chainIDs.map(id => ({ id }))
+    }
+  })
+  if (res.length !== chainIDs.length){
+    throw new Error('Unrecogized chain id')
+  }
+
+  const unredeemed = await Retryable.findAll({
+    where: {
+      [Op.or]: chainIDs.map(ArbchainId => ({ ArbchainId })),
+      status: L1ToL2MessageStatus.REDEEMED // TODO
+    },
+    order: ['l1BlockNumber']
+  });
+  if ( unredeemed.length > 0) {
+    const eldest =  unredeemed[0]
+    // TODO
+    log(`Found ${unredeemed.length} unredeemed tickets; eldest was created at `, 2);
+  } else {
+    log("Nothing to redeemed");
+  }
+};
 
 const scanForRetryables = async (
   chainID: number,
   blocksPerInboxQuery: number,
   blocksFromChainTip: number
-) => {
+) => {  
   const chain = await ArbChain.findByPk(chainID);
-  if (!chain) throw new Error(`Chain ${chainID} not found`);
-
+  if (!chain) throw new Error(`Chain ${chainID} not found`);  
   const lastBlockChecked = (await chain.getDataValue(
     "lastBlockChecked"
   )) as number;
@@ -35,7 +88,7 @@ const scanForRetryables = async (
   const toBlock = Math.min(lastBlockChecked + blocksPerInboxQuery, limit);
 
   const eventFetcher = new EventFetcher(l1Provider);
-  console.log("checking", lastBlockChecked, toBlock);
+  console.log("checking blocks", lastBlockChecked, toBlock);
 
   const inboxDeliveredLogs = await eventFetcher.getEvents<
     Inbox,
@@ -66,8 +119,22 @@ const scanForRetryables = async (
           status,
           l1TxHash,
           msgIndex,
-          ArbchainId: chainID
+          ArbchainId: chainID,
+          l1BlockNumber: rec.blockNumber
         });
+
+        // live report expiration or failure
+        if (status === L1ToL2MessageStatus.EXPIRED) {
+          log(
+            `Retryable expired: l1tx: ${l1TxHash} msg Index: ${msgIndex} chain: ${chainID}`,
+            2
+          );
+        } else if (status === L1ToL2MessageStatus.CREATION_FAILED){
+          log(
+            `Severe error — ticket creation failed: l1tx: ${l1TxHash} msg Index: ${msgIndex} chain: ${chainID}`,
+            2
+          );
+        } 
       }
     }
     await chain.update({
@@ -86,7 +153,11 @@ const scanForRetryables = async (
   };
 };
 
-export const syncRetryables = async (chainID: number, blocksPerInboxQuery: number, blocksFromChainTip: number) => {
+export const syncRetryables = async (
+  chainID: number,
+  blocksPerInboxQuery: number,
+  blocksFromChainTip: number
+) => {
   while (true) {
     const { finished, toBlock } = await scanForRetryables(
       chainID,
@@ -94,7 +165,7 @@ export const syncRetryables = async (chainID: number, blocksPerInboxQuery: numbe
       blocksFromChainTip
     );
     if (finished) {
-      await wait(blocksFromChainTip * 15 * 100);
+      await wait(blocksFromChainTip * 15 * 1000);
     }
   }
 };
@@ -113,8 +184,6 @@ export const updateStatus = async (chainID: number) => {
       status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
     }
   });
-  console.log('found', res.length);
-  
 
   for (let message of res) {
     const { l1TxHash, msgIndex } = message.toJSON();
@@ -129,9 +198,13 @@ export const updateStatus = async (chainID: number) => {
       await message.update({
         status
       });
-    } else {
-      console.log('not updated');
-      
+    }
+    // Live message if message expires
+    if (status === L1ToL2MessageStatus.EXPIRED) {
+      log(
+        `Retryable expired: l1tx: ${l1TxHash} msg Index: ${msgIndex} chain: ${chainID}`,
+        2
+      );
     }
   }
 };

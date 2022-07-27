@@ -5,7 +5,7 @@ require("dotenv").config();
 (()=>{
     ArbChain.create({
         id: 42161,
-        lastBlockChecked: 15213283,
+        lastBlockChecked: 15210167,
         l2rpcURL: "https://Arb1-graph.arbitrum.io/rpc",
         l1rpcURL: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID,
         inboxAddress: "0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f"
