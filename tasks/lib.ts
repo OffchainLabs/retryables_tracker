@@ -41,7 +41,6 @@ export const log = (text: string, logLevel: LogLevel = 0) => {
 export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
   const chainIDs =
     typeof chaindIDOrIds === "number" ? [chaindIDOrIds] : chaindIDOrIds;
-  console.warn("chaindIDOrIds", chaindIDOrIds);
   // sanity
   const res = await ArbChain.findAll({
     where: {
@@ -63,13 +62,12 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
   if (unredeemed.length > 0) {
     // TODO
     const { l1TimestampCreated } = unredeemed[0].toJSON();
-    console.log(l1TimestampCreated);
 
     log(
       `Found ${unredeemed.length} unredeemed ticket${
         unredeemed.length > 1 ? "s" : ""
       };${unredeemed.length > 1 ? " eldest" : ""} initiated at ${new Date(
-        1658732077
+        l1TimestampCreated
       ).toString()}`,
       2
     );
