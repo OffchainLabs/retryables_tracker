@@ -7,7 +7,8 @@
     "init_db": "yarn ts-node db/resetDB.ts && yarn ts-node db/initChains.ts",
     "sync": "yarn tsc && node dist/tasks/sync.js",
     "update": "yarn tsc && node dist/tasks/update.js",
-    "report": "yarn tsc && node dist/tasks/report.js"
+    "report": "yarn tsc && node dist/tasks/report.js",
+    "start_server": "yarn ts-node routes/index.ts"
 
   },
   "author": "",

@@ -2,9 +2,10 @@ import express, { Application, Request, Response } from "express";
 import db from "../db/config";
 import { Arbchain, Retryable } from "../db/models";
 import { L1ToL2MessageStatus } from "@arbitrum/sdk";
+require("dotenv").config();
 
 const app: Application = express();
-const port = 3000;
+const port =  process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
