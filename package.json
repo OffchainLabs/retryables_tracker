@@ -4,18 +4,22 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init_db": "yarn ts-node db/resetDB.ts && yarn ts-node db/initChains.ts"
+    "init_db": "yarn ts-node db/resetDB.ts && yarn ts-node db/initChains.ts",
+    "sync": "yarn tsc && node dist/tasks/sync.js",
+    "update": "yarn tsc && node dist/tasks/update.js"
+
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@arbitrum/sdk": "^2.0.5",
     "dotenv": "^16.0.1",
     "ethers": "^5.6.9",
     "express": "^4.18.1",
     "pg": "^8.7.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.21.3",
-    "@arbitrum/sdk": "^2.0.5"
+    "yargs": "^17.5.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",

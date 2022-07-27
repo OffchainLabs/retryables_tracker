@@ -64,5 +64,7 @@ try {
     console.log(`Server running on ${port}`);
   });
 } catch (error) {
-  console.log(`Error occurred: ${error.message}`);
+  console.log(`Error occurred:`);
+  console.log(error);
+  
 }

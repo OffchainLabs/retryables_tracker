@@ -12,13 +12,12 @@ import {
   InboxMessageDeliveredEvent,
   Inbox
 } from "@arbitrum/sdk/dist/lib/abi/Inbox";
-const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-
-const blocksFromChainTip = 120;
+export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 
 const scanForRetryables = async (
   chainID: number,
-  blocksPerInboxQuery: number
+  blocksPerInboxQuery: number,
+  blocksFromChainTip: number
 ) => {
   const chain = await ArbChain.findByPk(chainID);
   if (!chain) throw new Error(`Chain ${chainID} not found`);
@@ -87,11 +86,12 @@ const scanForRetryables = async (
   };
 };
 
-const syncRetryables = async (chainID: number, blocksPerInboxQuery: number) => {
+export const syncRetryables = async (chainID: number, blocksPerInboxQuery: number, blocksFromChainTip: number) => {
   while (true) {
     const { finished, toBlock } = await scanForRetryables(
       chainID,
-      blocksPerInboxQuery
+      blocksPerInboxQuery,
+      blocksFromChainTip
     );
     if (finished) {
       await wait(blocksFromChainTip * 15 * 100);
@@ -99,7 +99,7 @@ const syncRetryables = async (chainID: number, blocksPerInboxQuery: number) => {
   }
 };
 
-const updateStatus = async (chainID: number) => {
+export const updateStatus = async (chainID: number) => {
   const chain = await ArbChain.findByPk(chainID);
   if (!chain) throw new Error(`Chain ${chainID} not found`);
   const { l1rpcURL, l2rpcURL } = chain.toJSON();
@@ -113,6 +113,8 @@ const updateStatus = async (chainID: number) => {
       status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
     }
   });
+  console.log('found', res.length);
+  
 
   for (let message of res) {
     const { l1TxHash, msgIndex } = message.toJSON();
@@ -128,8 +130,8 @@ const updateStatus = async (chainID: number) => {
         status
       });
     } else {
+      console.log('not updated');
+      
     }
   }
 };
-// sync(42161, 1000);
-updateStatus(42161);
