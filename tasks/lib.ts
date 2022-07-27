@@ -55,7 +55,7 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
   const unredeemed = await Retryable.findAll({
     where: {
       [Op.or]: chainIDs.map(ArbchainId => ({ ArbchainId })),
-      status: L1ToL2MessageStatus.REDEEMED // TODO
+      status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
     },
     order: ['l1BlockNumber']
   });
