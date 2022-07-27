@@ -55,9 +55,10 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
   const unredeemed = await Retryable.findAll({
     where: {
       [Op.or]: chainIDs.map(ArbchainId => ({ ArbchainId })),
-      status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
+      status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2,
+      dontReport: false
     },
-    order: ["l1TimestampCreated"]
+    order: ["l1TimestampCreated"],
   });
   if (unredeemed.length > 0) {
     // TODO

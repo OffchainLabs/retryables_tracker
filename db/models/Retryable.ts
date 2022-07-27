@@ -7,7 +7,8 @@ const Retryable = db.define("Retryable", {
   l1TxHash: { type: DataTypes.STRING, unique: "message" },
   msgIndex: { type: DataTypes.INTEGER, unique: "message" },
   ArbchainId: { type: DataTypes.INTEGER, unique: "message" },
-  l1TimestampCreated: { type: DataTypes.INTEGER }
+  l1TimestampCreated: { type: DataTypes.INTEGER },
+  dontReport: { type: DataTypes.BOOLEAN, defaultValue: false }
 });
 
 export default Retryable;
