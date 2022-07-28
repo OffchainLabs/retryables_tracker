@@ -8,8 +8,8 @@
     "sync": "yarn tsc && node dist/tasks/sync.js",
     "update": "yarn tsc && node dist/tasks/update.js",
     "report": "yarn tsc && node dist/tasks/report.js",
-    "start_server": "yarn ts-node routes/index.ts"
-
+    "start_server": "yarn ts-node routes/index.ts",
+    "set_dont_report": "yarn tsc  && yarn ts-node dist/tasks/setDontReport.js"
   },
   "author": "",
   "license": "ISC",
