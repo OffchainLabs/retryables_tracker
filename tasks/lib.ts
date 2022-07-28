@@ -4,7 +4,7 @@ import { providers } from "ethers";
 import {
   EventFetcher,
   L1TransactionReceipt,
-  L1ToL2MessageStatus,
+  L1ToL2MessageStatus
 } from "@arbitrum/sdk";
 import { Inbox__factory } from "@arbitrum/sdk/dist/lib/abi/factories/Inbox__factory";
 import {
@@ -17,7 +17,6 @@ import dotenv from "dotenv";
 import { Op } from "sequelize";
 
 dotenv.config();
-
 
 const slackToken = process.env.SLACK_TOKEN;
 const slackChannel_1 = process.env.SLACK_CHANNEL_1 as string;
@@ -61,7 +60,6 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
     order: ["l1TimestampCreated"]
   });
   if (unredeemed.length > 0) {
-    // TODO
     const { l1TimestampCreated } = unredeemed[0].toJSON();
 
     log(
@@ -69,7 +67,9 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
         unredeemed.length > 1 ? "s" : ""
       };${unredeemed.length > 1 ? " eldest" : ""} initiated at ${new Date(
         l1TimestampCreated
-      ).toString()}`,
+      ).toString()}. L1TxIds: ${unredeemed
+        .map(msg => msg.getDataValue("l1TxHash"))
+        .join(",")}`, //**temporary; replace with endpoint when ready */
       2
     );
   } else {
