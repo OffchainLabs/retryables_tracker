@@ -43,6 +43,7 @@ const { l1TxHash, msgIndex, chainid: ArbchainId, explanation } = yargs(
     dontReport: true
   });
   log(
-    `Will not report about msg with l1TxnHash ${l1TxHash} (index ${msgIndex}). Reason:'${explanation}'`
+    `Will not report about msg with l1TxnHash ${l1TxHash} (index ${msgIndex}). Reason:'${explanation}'`,
+    2
   );
 })();
