@@ -4,7 +4,8 @@ import { providers } from "ethers";
 import {
   EventFetcher,
   L1TransactionReceipt,
-  L1ToL2MessageStatus
+  L1ToL2MessageStatus,
+  getL1Network
 } from "@arbitrum/sdk";
 import { Inbox__factory } from "@arbitrum/sdk/dist/lib/abi/factories/Inbox__factory";
 import {
@@ -91,7 +92,12 @@ const scanForRetryables = async (
 
   const l1Provider = new providers.JsonRpcProvider(l1rpcURL);
   const l2Provider = new providers.JsonRpcProvider(l2rpcURL);
-
+  const n = await getL1Network(l1Provider);
+  if (n.chainID === 42161 &&  !n.partnerChainIDs.includes(42170)) {
+    n.partnerChainIDs.push(42170);
+  }
+  console.log(n.partnerChainIDs);
+  
   const currentL1Block = await l1Provider.getBlockNumber();
   const limit = currentL1Block - blocksFromChainTip;
   const toBlock = Math.min(lastBlockChecked + blocksPerInboxQuery, limit);
