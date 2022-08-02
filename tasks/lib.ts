@@ -93,7 +93,7 @@ const scanForRetryables = async (
   const l1Provider = new providers.JsonRpcProvider(l1rpcURL);
   const l2Provider = new providers.JsonRpcProvider(l2rpcURL);
   const n = await getL1Network(l1Provider);
-  if (n.chainID === 42161 &&  !n.partnerChainIDs.includes(42170)) {
+  if (n.chainID === 1 &&  !n.partnerChainIDs.includes(42170)) {
     n.partnerChainIDs.push(42170);
   }
   console.log(n.partnerChainIDs);
