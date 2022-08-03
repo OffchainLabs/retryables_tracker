@@ -5,7 +5,7 @@ import { L1ToL2MessageStatus } from "@arbitrum/sdk";
 require("dotenv").config();
 
 const app: Application = express();
-const port =  process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,6 +41,7 @@ app.get(
         status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
       },
       attributes,
+      include: [{ model: Arbchain, attributes: ["lastBlockChecked"] }]
     });
 
     const novaResults = await Retryable.findAll({
@@ -48,7 +49,8 @@ app.get(
         ArbchainId: 42170,
         status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
       },
-      attributes
+      attributes,
+      include: [{ model: Arbchain, attributes: ["lastBlockChecked"] }]
     });
 
     return res.status(200).json({
