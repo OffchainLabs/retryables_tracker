@@ -67,7 +67,7 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
       `Found ${unredeemed.length} unredeemed ticket${
         unredeemed.length > 1 ? "s" : ""
       };${unredeemed.length > 1 ? " eldest" : ""} initiated at ${new Date(
-        l1TimestampCreated
+        l1TimestampCreated * 1000
       ).toString()}. L1TxIds: ${unredeemed
         .map(msg => msg.getDataValue("l1TxHash"))
         .join(",")}`, //**temporary; replace with endpoint when ready */
