@@ -38,7 +38,8 @@ app.get(
     const arb1Results = await Retryable.findAll({
       where: {
         ArbchainId: 42161,
-        status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
+        status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2,
+        dontReport: false
       },
       attributes,
       include: [{ model: Arbchain, attributes: ["lastBlockChecked"] }]
@@ -47,7 +48,8 @@ app.get(
     const novaResults = await Retryable.findAll({
       where: {
         ArbchainId: 42170,
-        status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2
+        status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2,
+        dontReport: false
       },
       attributes,
       include: [{ model: Arbchain, attributes: ["lastBlockChecked"] }]
