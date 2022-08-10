@@ -61,16 +61,14 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
     order: ["l1TimestampCreated"]
   });
   if (unredeemed.length > 0) {
-    const { l1TimestampCreated } = unredeemed[0].toJSON();
+    const { l1TimestampCreated, l1TxHash } = unredeemed[0].toJSON();
 
     log(
       `Found ${unredeemed.length} unredeemed ticket${
         unredeemed.length > 1 ? "s" : ""
       };${unredeemed.length > 1 ? " eldest" : ""} initiated at ${new Date(
         l1TimestampCreated * 1000
-      ).toString()}. L1TxIds: ${unredeemed
-        .map(msg => msg.getDataValue("l1TxHash"))
-        .join(",")}`, //**temporary; replace with endpoint when ready */
+      ).toString()} — https://retryable-tx-panel-nitro.arbitrum.io/${l1TxHash}. See https://retryablestatus.arbitrum.io/unredeemed/mainnet for all of them.`,
       2
     );
   } else {
@@ -93,11 +91,11 @@ const scanForRetryables = async (
   const l1Provider = new providers.JsonRpcProvider(l1rpcURL);
   const l2Provider = new providers.JsonRpcProvider(l2rpcURL);
   const n = await getL1Network(l1Provider);
-  if (n.chainID === 1 &&  !n.partnerChainIDs.includes(42170)) {
+  if (n.chainID === 1 && !n.partnerChainIDs.includes(42170)) {
     n.partnerChainIDs.push(42170);
   }
   console.log(n.partnerChainIDs);
-  
+
   const currentL1Block = await l1Provider.getBlockNumber();
   const limit = currentL1Block - blocksFromChainTip;
   const toBlock = Math.min(lastBlockChecked + blocksPerInboxQuery, limit);
