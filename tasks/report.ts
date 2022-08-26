@@ -20,7 +20,7 @@ const { chainids, rebootMinutes, intervalHours } = yargs(process.argv.slice(2))
   .parseSync();
 
 
-const reportUnredeemedProcess = async () => {
+const reportUnredeemedLoop = async () => {
   while(true){
     await reportUnredeemed(chainids)
     await wait(intervalHours * 60 * 60 * 1000)
@@ -28,10 +28,12 @@ const reportUnredeemedProcess = async () => {
 }
 
 
-reportUnredeemedProcess().catch(async (e: Error) => {
-  log(`Error in ${chainids.join(",")} reporting process: ${e.toString()}. restarting in ${rebootMinutes}`,1)
-  setTimeout(reportUnredeemedProcess, 1000 * 60 * rebootMinutes);
-});
+const reportUnredeemedProcess = ()=>{
+  reportUnredeemedLoop().catch(async (e: Error) => {
+    log(`Error in ${chainids.join(",")} reporting process: ${e.toString()}. restarting in ${rebootMinutes}`,1)
+    setTimeout(reportUnredeemedProcess, 1000 * 60 * rebootMinutes);
+  });
+}
 
 process.on("uncaughtException", async function(e) {
   log(`Uncaught exception in ${chainids.join(",")} reporting process: ${e.toString()}. restarting in ${rebootMinutes}`, 1)
