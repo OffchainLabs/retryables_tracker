@@ -37,7 +37,7 @@ docker run --name postgresql -e POSTGRES_USER=SuperCoder -e POSTGRES_PASSWORD=my
 ```
 Then we can build the docker image:
 ```
-docker build -t retryables-v2
+docker build -t retryables-v2 .
 ```
 When finish building, we shoud run set our env file:
 ```
