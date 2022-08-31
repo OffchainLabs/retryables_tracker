@@ -86,15 +86,15 @@ const scanForRetryables = async (
   const lastBlockChecked = (await chain.getDataValue(
     "lastBlockChecked"
   )) as number;
-  const { l1rpcURL, l2rpcURL, inboxAddress } = chain.toJSON();
+  const { l1rpcURL, l2rpcURL, inboxAddress, id } = chain.toJSON();
 
   const l1Provider = new providers.JsonRpcProvider(l1rpcURL);
   const l2Provider = new providers.JsonRpcProvider(l2rpcURL);
-  const n = await getL1Network(l1Provider);
+  const n = await getL1Network(l1Provider, id);
   if (n.chainID === 1 && !n.partnerChainIDs.includes(42170)) {
     n.partnerChainIDs.push(42170);
   }
-  console.log(n.partnerChainIDs);
+  console.log(n.partnerChainIDs);  
 
   const currentL1Block = await l1Provider.getBlockNumber();
   const limit = currentL1Block - blocksFromChainTip;
