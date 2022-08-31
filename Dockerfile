@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN yarn install
+RUN yarn install && yarn build
 
-ENTRYPOINT ["yarn"]
+ENTRYPOINT ["yarn node dist/scr/main.js"]

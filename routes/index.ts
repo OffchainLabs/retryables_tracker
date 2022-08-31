@@ -4,7 +4,7 @@ import { Arbchain, Retryable } from "../db/models";
 import { L1ToL2MessageStatus } from "@arbitrum/sdk";
 require("dotenv").config();
 
-const app: Application = express();
+export const app: Application = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
@@ -74,11 +74,14 @@ app.get(
   }
 );
 
-try {
-  app.listen(port, () => {
-    console.log(`Server running on ${port}`);
-  });
-} catch (error) {
-  console.log(`Error occurred:`);
-  console.log(error);
+export const appProgress =async () => {
+  try {
+    app.listen(port, () => {
+      console.log(`Server running on ${port}`);
+    });
+  } catch (error) {
+    console.log(`Error occurred:`);
+    console.log(error);
+  }
 }
+  

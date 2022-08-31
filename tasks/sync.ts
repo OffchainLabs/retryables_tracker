@@ -1,6 +1,7 @@
 import { syncRetryables, log } from "./lib";
 
 import yargs from "yargs/yargs";
+import exp from "constants";
 
 const { blocksperquery, chainid, blocksFromTip, rebootMinutes } = yargs(
   process.argv.slice(2)
@@ -13,7 +14,7 @@ const { blocksperquery, chainid, blocksFromTip, rebootMinutes } = yargs(
   })
   .parseSync();
 
-const syncRetryablesProcess = () => {
+export const syncRetryablesProcess = () => {
   syncRetryables(chainid, blocksperquery, blocksFromTip).catch(
     async (e: Error) => {
       log(`Error in ${chainid} sync process: ${e.toString()}. restarting in ${rebootMinutes}`,1)
@@ -28,4 +29,4 @@ process.on("uncaughtException", async function(e) {
   setTimeout(syncRetryablesProcess, 1000 * 60 * rebootMinutes);
 });
 
-syncRetryablesProcess();
+//syncRetryablesProcess();

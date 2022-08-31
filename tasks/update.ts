@@ -13,18 +13,21 @@ const { chainid, rebootMinutes, intervalMinutes } = yargs(process.argv.slice(2))
   })
   .parseSync();
 
-const updateProcess = async () => {
+const keepUpdateProcess = async () => {
   while (true) {
     await updateStatus(chainid);
     await wait(intervalMinutes * 1000 * 60);
   }
 };
 
-updateProcess().catch(async (e: Error) => {
-  log(`Error in ${chainid} update process: ${e.toString()}. restarting in ${rebootMinutes}`,1)
 
-  setTimeout(updateProcess, 1000 * 60 * rebootMinutes);
-});
+export const updateProcess = async () => {
+  keepUpdateProcess().catch(async (e: Error) => {
+    log(`Error in ${chainid} update process: ${e.toString()}. restarting in ${rebootMinutes}`,1)
+  
+    setTimeout(updateProcess, 1000 * 60 * rebootMinutes);
+  });
+}
 
 process.on("uncaughtException", async function(e) {
   log(`Uncaught exception in ${chainid} update process: ${e.toString()}. restarting in ${rebootMinutes}`, 1)

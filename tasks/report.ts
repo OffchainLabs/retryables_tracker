@@ -20,7 +20,7 @@ const { chainids, rebootMinutes, intervalHours } = yargs(process.argv.slice(2))
   .parseSync();
 
 
-const reportUnredeemedProcess = async () => {
+export const reportUnredeemedProcess = async () => {
   while(true){
     await reportUnredeemed(chainids)
     await wait(intervalHours * 60 * 60 * 1000)

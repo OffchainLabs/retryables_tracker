@@ -29,7 +29,8 @@ const { l1TxHash, msgIndex, chainid: ArbchainId, explanation } = yargs(
   })
   .parseSync();
 
-(async () => {
+
+export const sentDontReportProgress = async () => {
   const msg = await Retryable.findOne({
     where: {
       l1TxHash,
@@ -46,4 +47,5 @@ const { l1TxHash, msgIndex, chainid: ArbchainId, explanation } = yargs(
     `Will not report about msg with l1TxnHash ${l1TxHash} (index ${msgIndex}). Reason:'${explanation}'`,
     2
   );
-})();
+}
+

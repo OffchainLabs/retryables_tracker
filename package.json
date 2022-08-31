@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "init_db": "yarn ts-node db/resetDB.ts && yarn ts-node db/initChains.ts",
-    "sync": "yarn tsc && node dist/tasks/sync.js",
-    "update": "yarn tsc && node dist/tasks/update.js",
-    "report": "yarn tsc && node dist/tasks/report.js",
+    "build": "yarn tsc",
+    "init_db": "yarn ts-node src/main.ts --action init_db",
+    "sync": "yarn ts-node src/main.ts --action sync",
+    "update": "yarn ts-node src/main.ts --action update",
+    "report": "yarn ts-node src/main.ts --action report",
     "start_server": "yarn ts-node routes/index.ts",
-    "set_dont_report": "yarn tsc  && yarn ts-node dist/tasks/setDontReport.js"
+    "set_dont_report": "yarn ts-node tasks/setDontReport.ts"
   },
   "author": "",
   "license": "ISC",
