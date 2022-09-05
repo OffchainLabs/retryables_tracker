@@ -4,17 +4,12 @@ import { Arbchain, Retryable } from "../db/models";
 import { L1ToL2MessageStatus } from "@arbitrum/sdk";
 require("dotenv").config();
 
-export const app: Application = express();
+const app: Application = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-try {
-  db.authenticate();
-  console.log("DB successfully connected.");
-} catch (error) {
-  console.error("Unable to connect to the database:", error);
-}
+
 
 app.get(
   "/",
@@ -75,6 +70,12 @@ app.get(
 );
 
 export const appProgress =async () => {
+  try {
+    db.authenticate();
+    console.log("DB successfully connected.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
   try {
     app.listen(port, () => {
       console.log(`Server running on ${port}`);

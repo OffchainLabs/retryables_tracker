@@ -6,28 +6,49 @@ import {sentDontReportProgress} from "../tasks/setDontReport";
 import {appProgress} from "../routes/index";
 import {resetDBProgress} from "../db/resetDB";
 import {initChainsProgress} from "../db/initChains";
+import { exit } from 'process';
 
 
 const main = async () => {
     switch (argv.action) {
         case "sync":
-            return syncRetryablesProcess()
+            if(!argv.chainid) {
+                console.error("Error: chainid needed");
+                exit(1);
+            }
+            return syncRetryablesProcess();
 
         case "update":
-            return updateProcess()
+            if(!argv.chainid) {
+                console.error("Error: chainid needed");
+                exit(1);
+            }
+            return updateProcess();
 
         case "report":
-            return reportUnredeemedProcess()
+            if(!argv.chainids) {
+                console.error("Error: chainids needed");
+                exit(1);
+            }
+            return reportUnredeemedProcess();
             
         case "start_server":
-            return appProgress()
+            return appProgress();
 
         case "init_db":
-            await resetDBProgress()
-            return initChainsProgress()
+            await resetDBProgress();
+            return initChainsProgress();
 
         case "set_dont_report":
-            return sentDontReportProgress()
+            if(!argv.l1TxHash || !argv.msgIndex || !argv.chainid || !argv.explanation) {
+                if(!argv.l1TxHash) console.error("Error: l1TxHash needed");
+                if(!argv.msgIndex) console.error("Error: msgIndex needed");
+                if(!argv.chainid) console.error("Error: chainid needed");
+                if(!argv.explanation) console.error("Error: explanation needed");
+                exit(1);
+            }
+            
+            return sentDontReportProgress();
 
         default:
             throw new Error("Not a right action value");
@@ -40,3 +61,4 @@ main()
     console.error(JSON.stringify(err));
     throw err;
   });
+

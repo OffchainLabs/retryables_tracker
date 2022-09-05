@@ -1,21 +1,12 @@
 import { updateStatus, wait, log } from "./lib";
 import yargs from "yargs/yargs";
+import argv from "../src/getClargs";
 
-const { chainid, rebootMinutes, intervalMinutes } = yargs(process.argv.slice(2))
-  .options({
-    chainid: { type: "number", demandOption: true, alias: "id", description: "Target chain Id" },
-    rebootMinutes: {
-      type: "number",
-      default: 60,
-      description: "Pause time if error occurs before restarting process"
-    },
-    intervalMinutes: { type: "number", default: 3, description: "Frequency at which to check for updated status" },
-  })
-  .parseSync();
+const { chainid, rebootMinutes, intervalMinutes } = argv
 
 const keepUpdateProcess = async () => {
   while (true) {
-    await updateStatus(chainid);
+    await updateStatus(chainid!);
     await wait(intervalMinutes * 1000 * 60);
   }
 };
