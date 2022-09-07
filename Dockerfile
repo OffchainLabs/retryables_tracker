@@ -6,4 +6,4 @@ COPY . .
 
 RUN yarn install && yarn build
 
-ENTRYPOINT ["yarn", "node", "dist/scr/main.js"]
+ENTRYPOINT ["yarn", "node", "dist/src/main.js"]

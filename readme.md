@@ -39,13 +39,13 @@ Then we can build the docker image:
 ```
 docker build -t retryables-v2 .
 ```
-When finish building, we shoud run set our env file:
+When finish building, we shoud run set our env file(noted: change the env according to your db):
 ```
 mv .env.sample env_docker
 ```
 Then start init db:
 ```
-docker run --name=init_db --network host --env-file=./env_docker -d retryables-v2 init_db
+docker run --name=init_db --network host --env-file=./env_docker -d retryables-v2 --action init_db
 ```
 check db init:
 ```
@@ -53,6 +53,6 @@ docker logs init_db
 ```
 once we see `Done in xx s`, then we can keep on starting others containers
 ```
-docker run --name=retryable-v2-sync-{networkId} --network host --env-file=./env_docker -d sync --chainid 42161
+docker run --name=retryable-v2-sync-networkId --network host --env-file=./env_docker -d retryables-v2 --action sync --chainid 42161
 ```
 and so others process.
