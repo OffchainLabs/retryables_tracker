@@ -12,46 +12,32 @@ import { exit } from 'process';
 const main = async () => {
     switch (argv.action) {
         case "sync":
-            if(!argv.chainid) {
-                console.error("Error: arg chainid needed");
-                exit(1);
-            }
+            if(!argv.chainid) throw new Error("Error: arg chainid needed");
             return syncRetryablesProcess();
 
         case "update":
-            if(!argv.chainid) {
-                console.error("Error: arg chainid needed");
-                exit(1);
-            }
+            if(!argv.chainid) throw new Error("Error: arg chainid needed");
             return updateProcess();
 
         case "report":
-            if(!argv.chainids) {
-                console.error("Error: arg chainids needed");
-                exit(1);
-            }
+            if(!argv.chainids) throw new Error("Error: arg chainids needed");
             return reportUnredeemedProcess();
             
         case "start_server":
             return appProgress();
 
         case "init_db":
-            if(!process.env.L2_ONE_RPC || !process.env.L2_NOVA_RPC) {
-                if(!process.env.L2_ONE_RPC) console.error("Error: env L2_ONE_RPC needed");
-                if(!process.env.L2_NOVA_RPC) console.error("Error: env L2_NOVA_RPC needed");
-                exit(1);
-            }
+            if(!process.env.L2_ONE_RPC) throw new Error("Error: env L2_ONE_RPC needed");
+            if(!process.env.L2_NOVA_RPC) throw new Error("Error: env L2_NOVA_RPC needed");
+
             await resetDBProgress();
             return initChainsProgress();
 
         case "set_dont_report":
-            if(!argv.l1TxHash || !argv.msgIndex || !argv.chainid || !argv.explanation) {
-                if(!argv.l1TxHash) console.error("Error: arg l1TxHash needed");
-                if(!argv.msgIndex) console.error("Error: arg msgIndex needed");
-                if(!argv.chainid) console.error("Error: arg chainid needed");
-                if(!argv.explanation) console.error("Error: arg explanation needed");
-                exit(1);
-            }
+            if(!argv.l1TxHash) throw new Error("Error: arg l1TxHash needed");
+            if(!argv.msgIndex) throw new Error("Error: arg msgIndex needed");
+            if(!argv.chainid) throw new Error("Error: arg chainid needed");
+            if(!argv.explanation) throw new Error("Error: arg explanation needed");
             
             return sentDontReportProgress();
 
@@ -66,4 +52,3 @@ main()
     console.error(JSON.stringify(err));
     throw err;
   });
-
