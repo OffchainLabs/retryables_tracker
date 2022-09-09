@@ -1,5 +1,4 @@
 import { log, reportUnredeemed, wait } from "./lib";
-import yargs from "yargs/yargs";
 import { Retryable } from "../db/models";
 import argv from "../src/getClargs";
 

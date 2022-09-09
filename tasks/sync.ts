@@ -1,7 +1,4 @@
 import { syncRetryables, log } from "./lib";
-
-import yargs from "yargs/yargs";
-import exp from "constants";
 import argv from "../src/getClargs";
 
 const { blocksperquery, chainid, blocksFromTip, rebootMinutes } = argv

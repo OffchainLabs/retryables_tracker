@@ -1,5 +1,4 @@
 import { updateStatus, wait, log } from "./lib";
-import yargs from "yargs/yargs";
 import argv from "../src/getClargs";
 
 const { chainid, rebootMinutes, intervalMinutes } = argv

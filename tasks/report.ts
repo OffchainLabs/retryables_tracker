@@ -1,9 +1,6 @@
 import { log, reportUnredeemed, wait } from "./lib";
-import yargs from "yargs/yargs";
 import argv from "../src/getClargs";
-// let chainids:Array<number>;
-// let rebootMinutes:number;
-// let intervalHours:number;
+
 const { chainids, rebootMinutes, intervalHours } = argv;
 
 
@@ -13,7 +10,6 @@ export const keepReportUnredeemedProcess = async () => {
     await wait(intervalHours * 60 * 60 * 1000)
   }
 }
-
 
 
 export const reportUnredeemedProcess = async () => {
