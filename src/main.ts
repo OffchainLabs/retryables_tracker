@@ -6,7 +6,6 @@ import {sentDontReportProgress} from "../tasks/setDontReport";
 import {appProgress} from "../routes/index";
 import {resetDBProgress} from "../db/resetDB";
 import {initChainsProgress} from "../db/initChains";
-import { exit } from 'process';
 
 
 const main = async () => {
@@ -29,6 +28,9 @@ const main = async () => {
         case "init_db":
             if(!process.env.L2_ONE_RPC) throw new Error("Error: env L2_ONE_RPC needed");
             if(!process.env.L2_NOVA_RPC) throw new Error("Error: env L2_NOVA_RPC needed");
+            if(!process.env.ETHEREUM_L1_RPC) throw new Error("Error: env ETHEREUM_L1_RPC needed");
+            if(!process.env.LAST_BLOCK_CHECKED_ONE) throw new Error("Error: env LAST_BLOCK_CHECKED_ONE needed");
+            if(!process.env.LAST_BLOCK_CHECKED_NOVA) throw new Error("Error: env LAST_BLOCK_CHECKED_NOVA needed");
 
             await resetDBProgress();
             return initChainsProgress();
