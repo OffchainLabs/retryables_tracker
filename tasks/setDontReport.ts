@@ -3,32 +3,6 @@ import { Retryable } from "../db/models";
 import argv from "../src/getClargs";
 
 const { l1TxHash, msgIndex, chainid: ArbchainId, explanation } = argv;
-// yargs(
-//   process.argv.slice(2)
-// )
-//   .options({
-//     l1TxHash: {
-//       type: "string",
-//       demandOption: true,
-//       description: "Target Tx Hash"
-//     },
-//     msgIndex: {
-//       type: "number",
-//       demandOption: true,
-//       description: "Target Tx msg number"
-//     },
-//     chainid: {
-//       type: "number",
-//       demandOption: true,
-//       description: "Target arb chainId"
-//     },
-//     explanation: {
-//       type: "string",
-//       demandOption: true,
-//       description: ""
-//     }
-//   })
-//   .parseSync();
 
 
 export const sentDontReportProgress = async () => {
