@@ -3,7 +3,7 @@ import ArbChain from "./models/Arbchain";
 import {
   getL2Network
 } from "@arbitrum/sdk-nitro/dist/lib/dataEntities/networks"
-import ethers from "ethers"
+import { ethers } from "ethers"
 require("dotenv").config();
 
 const l2OneRpc  = process.env.L2_ONE_RPC as string
@@ -15,7 +15,7 @@ const lastBlockCheckedNova = process.env.LAST_BLOCK_CHECKED_NOVA
 //get inbox's address using arbitrum sdk
 const getInbox = async (rpc:string) => {
   const provider = new ethers.providers.JsonRpcProvider(rpc)
-  const chainID = provider.network.chainId
+  const chainID = (await provider.getNetwork()).chainId
   let l2Network = await getL2Network(chainID)
   return l2Network.ethBridge.inbox
 }
