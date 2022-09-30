@@ -14,12 +14,7 @@ app.use(cors({
   origin: '*'
 }));
 app.use(express.urlencoded({ extended: true }));
-try {
-  db.authenticate();
-  console.log("DB successfully connected.");
-} catch (error) {
-  console.error("Unable to connect to the database:", error);
-}
+
 
 app.get(
   "/",
@@ -79,11 +74,20 @@ app.get(
   }
 );
 
-try {
-  app.listen(port, () => {
-    console.log(`Server running on ${port}`);
-  });
-} catch (error) {
-  console.log(`Error occurred:`);
-  console.log(error);
+export const appProgress =async () => {
+  try {
+    db.authenticate();
+    console.log("DB successfully connected.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
+  try {
+    app.listen(port, () => {
+      console.log(`Server running on ${port}`);
+    });
+  } catch (error) {
+    console.log(`Error occurred:`);
+    console.log(error);
+  }
 }
+  
