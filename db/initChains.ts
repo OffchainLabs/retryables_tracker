@@ -2,7 +2,7 @@
 import ArbChain from "./models/Arbchain";
 import {
   getL2Network
-} from "@arbitrum/sdk-nitro/dist/lib/dataEntities/networks"
+} from "@arbitrum/sdk"
 import { ethers } from "ethers"
 require("dotenv").config();
 
