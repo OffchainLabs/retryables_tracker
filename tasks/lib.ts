@@ -94,7 +94,6 @@ const scanForRetryables = async (
   if (n.chainID === 1 && !n.partnerChainIDs.includes(42170)) {
     n.partnerChainIDs.push(42170);
   }
-  console.log(n.partnerChainIDs);  
 
   const currentL1Block = await l1Provider.getBlockNumber();
   const limit = currentL1Block - blocksFromChainTip;
@@ -113,8 +112,7 @@ const scanForRetryables = async (
     {
       fromBlock: lastBlockChecked + 1,
       toBlock,
-      address: inboxAddress,
-
+      address: inboxAddress
     }
   );
 
@@ -216,6 +214,24 @@ export const updateStatus = async (chainID: number) => {
     }
     // Live message if message expires
     if (status === L1ToL2MessageStatus.EXPIRED) {
+      // don't report as expired if msg has been flagged as don't report
+      try {
+        const msg = await Retryable.findOne({
+          where: {
+            l1TxHash,
+            msgIndex,
+            chainID,
+            dontReport: true
+          }
+        });
+
+        if (msg) {
+          return;
+        }
+      } catch (err) {
+        console.log(err);
+      }
+
       log(
         `Retryable expired: l1tx: ${l1TxHash} msg Index: ${msgIndex} chain: ${chainID}`,
         2
