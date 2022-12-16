@@ -37,7 +37,7 @@ const main = async () => {
 
         case "set_dont_report":
             if(!argv.l1TxHash) throw new Error("Error: arg l1TxHash needed");
-            if(!argv.msgIndex) throw new Error("Error: arg msgIndex needed");
+            if(typeof argv.msgIndex !== 'number') throw new Error("Error: arg msgIndex needed");
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
             if(!argv.explanation) throw new Error("Error: arg explanation needed");
             
