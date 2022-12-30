@@ -4,6 +4,12 @@ import argv from "../src/getClargs";
 const { chainids, rebootMinutes, intervalHours } = argv;
 
 
+export const reportUnredeemedOneOff = ()=>{
+  reportUnredeemed(chainids).catch(async (e: Error) => {
+    log(`Error in ${chainids.join(",")} reporting process: ${e.toString()}`,1)
+  });
+}
+
 export const keepReportUnredeemedProcess = async () => {
   while(true){
     await reportUnredeemed(chainids)

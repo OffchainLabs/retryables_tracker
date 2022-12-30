@@ -1,7 +1,7 @@
 import  argv  from './getClargs';
-import {syncRetryablesProcess} from "../tasks/sync";
-import {updateProcess} from "../tasks/update";
-import {reportUnredeemedProcess} from "../tasks/report";
+import {syncRetryablesProcess, syncRetryablesOneOff} from "../tasks/sync";
+import {updateProcess, updateOneOff} from "../tasks/update";
+import {reportUnredeemedProcess, reportUnredeemedOneOff} from "../tasks/report";
 import {sentDontReportProgress} from "../tasks/setDontReport";
 import {appProgress} from "../routes/index";
 import {resetDBProgress} from "../db/resetDB";
@@ -9,18 +9,19 @@ import {initChainsProgress} from "../db/initChains";
 
 
 const main = async () => {
-    switch (argv.action) {
+    const { oneOff, action }  = argv
+    switch (action) {
         case "sync":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
-            return syncRetryablesProcess();
+            return oneOff ? syncRetryablesOneOff() :  syncRetryablesProcess();
 
         case "update":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
-            return updateProcess();
+            return oneOff ? updateOneOff() : updateProcess();
 
         case "report":
             if(!argv.chainids) throw new Error("Error: arg chainids needed");
-            return reportUnredeemedProcess();
+            return oneOff ? reportUnredeemedOneOff() : reportUnredeemedProcess();
             
         case "start_server":
             return appProgress();

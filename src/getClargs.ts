@@ -77,6 +77,10 @@ const argv = yargs(process.argv.slice(2))
         //demandOption: true,
         description: ""
       },
+      oneOff: {
+        type: "boolean",
+        default: false
+      }
       
   })
   .demandOption('action')
