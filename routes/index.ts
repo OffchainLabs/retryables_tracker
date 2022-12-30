@@ -41,8 +41,7 @@ app.get(
         status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2,
         dontReport: false
       },
-      attributes,
-      include: [{ model: Arbchain, attributes: ["lastBlockChecked"] }]
+      attributes
     });
 
     const novaResults = await Retryable.findAll({
@@ -51,16 +50,25 @@ app.get(
         status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2,
         dontReport: false
       },
-      attributes,
-      include: [{ model: Arbchain, attributes: ["lastBlockChecked"] }]
+      attributes
     });
+
+    const lastBlockChecked = await Arbchain.findAll({
+      attributes: ["lastBlockChecked", "id"]
+    })    
 
     return res.status(200).json({
       data: {
         42161: arb1Results,
         42170: novaResults
       },
-      totalUnredeemed: novaResults.length + arb1Results.length
+      totalUnredeemed: novaResults.length + arb1Results.length,
+      lastL1BlocksChecked: lastBlockChecked.map((chain)=>{
+        return {
+          id: chain.getDataValue("id"),
+          lastBlockChecked: chain.getDataValue("lastBlockChecked")
+        }
+      }),
     });
   }
 );
