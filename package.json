@@ -9,7 +9,7 @@
     "sync": "yarn ts-node src/main.ts --action sync",
     "update": "yarn ts-node src/main.ts --action update",
     "report": "yarn ts-node src/main.ts --action report",
-    "start_server": "yarn ts-node routes/index.ts",
+    "start_server": "yarn ts-node src/main.ts --action start_server",
     "set_dont_report": "yarn ts-node src/main.ts --action set_dont_report"
   },
   "author": "",
