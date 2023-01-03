@@ -3,7 +3,7 @@ import argv from "../src/getClargs";
 
 const { chainid, rebootMinutes, intervalMinutes } = argv
 
-gexport const updateOneOff = async () => {
+export const updateOneOff = async () => {
   updateStatus(chainid!).catch(async (e: Error) => {
     log(`Error in ${chainid} update process: ${e.toString()}}`,1)
   });
