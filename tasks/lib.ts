@@ -178,8 +178,12 @@ export const syncRetryables = async (
       blocksPerInboxQuery,
       blocksFromChainTip
     );
-    if (finished && !oneOff) {
-      await wait(blocksFromChainTip * 15 * 1000);
+    if (finished) {
+      if (oneOff){
+        return 
+      } else {
+        await wait(blocksFromChainTip * 15 * 1000);
+      }
     }
   }
 };
