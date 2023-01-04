@@ -169,7 +169,8 @@ const scanForRetryables = async (
 export const syncRetryables = async (
   chainID: number,
   blocksPerInboxQuery: number,
-  blocksFromChainTip: number
+  blocksFromChainTip: number,
+  oneOff?: boolean
 ) => {
   while (true) {
     const { finished, toBlock } = await scanForRetryables(
@@ -177,7 +178,7 @@ export const syncRetryables = async (
       blocksPerInboxQuery,
       blocksFromChainTip
     );
-    if (finished) {
+    if (finished && !oneOff) {
       await wait(blocksFromChainTip * 15 * 1000);
     }
   }

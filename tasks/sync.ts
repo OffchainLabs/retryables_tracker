@@ -14,7 +14,7 @@ export const syncRetryablesProcess = () => {
 };
 
 export const syncRetryablesOneOff = () => {
-  syncRetryables(chainid!, blocksperquery, blocksFromTip).catch(
+  syncRetryables(chainid!, blocksperquery, blocksFromTip, true).catch(
     async (e: Error) => {
       log(`Error in ${chainid} sync process: ${e.toString()}`,1)
     }
