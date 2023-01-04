@@ -13,7 +13,7 @@ const main = async () => {
     switch (action) {
         case "sync":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
-            return oneOff ? syncRetryablesOneOff() :  syncRetryablesProcess();
+            return await (oneOff ? syncRetryablesOneOff() :  syncRetryablesProcess());
 
         case "update":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");

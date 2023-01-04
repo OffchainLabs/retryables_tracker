@@ -1,7 +1,7 @@
 import { syncRetryables, log } from "./lib";
 import argv from "../src/getClargs";
 
-const { blocksperquery, chainid, blocksFromTip, rebootMinutes } = argv
+const { blocksperquery, chainid, blocksFromTip, rebootMinutes, oneOff } = argv
 
 export const syncRetryablesProcess = () => {
   syncRetryables(chainid!, blocksperquery, blocksFromTip).catch(
@@ -14,7 +14,9 @@ export const syncRetryablesProcess = () => {
 };
 
 export const syncRetryablesOneOff = () => {
-  syncRetryables(chainid!, blocksperquery, blocksFromTip, true).catch(
+  console.log('Starting sync retryables one-off:');
+  
+  return syncRetryables(chainid!, blocksperquery, blocksFromTip, true).catch(
     async (e: Error) => {
       log(`Error in ${chainid} sync process: ${e.toString()}`,1)
     }
@@ -22,7 +24,7 @@ export const syncRetryablesOneOff = () => {
 };
 
 
-process.on("uncaughtException", async function(e) {
+!oneOff && process.on("uncaughtException", async function(e) {
   log(`Uncaught exception in ${chainid} sync process: ${e.toString()}. restarting in ${rebootMinutes}`, 1)
   setTimeout(syncRetryablesProcess, 1000 * 60 * rebootMinutes);
 });
