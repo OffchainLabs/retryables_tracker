@@ -17,11 +17,11 @@ const main = async () => {
 
         case "update":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
-            return oneOff ? updateOneOff() : updateProcess();
+            return await (oneOff ? updateOneOff() : updateProcess());
 
         case "report":
             if(!argv.chainids) throw new Error("Error: arg chainids needed");
-            return oneOff ? reportUnredeemedOneOff() : reportUnredeemedProcess();
+            return await (oneOff ? reportUnredeemedOneOff() : reportUnredeemedProcess());
             
         case "start_server":
             return appProgress();
