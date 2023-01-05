@@ -23,10 +23,3 @@ export const updateProcess = async () => {
     setTimeout(updateProcess, 1000 * 60 * rebootMinutes);
   });
 }
-
-process.on("uncaughtException", async function(e) {
-  log(`Uncaught exception in ${chainid} update process: ${e.toString()}. restarting in ${rebootMinutes}`, 1)
-
-    setTimeout(updateProcess, 1000 * 60 * rebootMinutes);
-  });
-  

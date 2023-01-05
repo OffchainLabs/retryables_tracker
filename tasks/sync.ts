@@ -23,10 +23,4 @@ export const syncRetryablesOneOff = () => {
   );
 };
 
-
-!oneOff && process.on("uncaughtException", async function(e) {
-  log(`Uncaught exception in ${chainid} sync process: ${e.toString()}. restarting in ${rebootMinutes}`, 1)
-  setTimeout(syncRetryablesProcess, 1000 * 60 * rebootMinutes);
-});
-
 //syncRetryablesProcess();

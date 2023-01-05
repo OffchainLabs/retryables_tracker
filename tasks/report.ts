@@ -25,10 +25,3 @@ export const reportUnredeemedProcess = async () => {
   });
 }
 
-
-process.on("uncaughtException", async function(e) {
-  log(`Uncaught exception in ${chainids.join(",")} reporting process: ${e.toString()}. restarting in ${rebootMinutes}`, 1)
-
-    setTimeout(reportUnredeemedProcess, 1000 * 60 * rebootMinutes);
-  });
-  

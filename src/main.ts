@@ -6,10 +6,10 @@ import {sentDontReportProgress} from "../tasks/setDontReport";
 import {appProgress} from "../routes/index";
 import {resetDBProgress} from "../db/resetDB";
 import {initChainsProgress} from "../db/initChains";
-
+import { log } from "../tasks/lib";
+const { oneOff, action }  = argv
 
 const main = async () => {
-    const { oneOff, action }  = argv
     switch (action) {
         case "sync":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
@@ -48,6 +48,18 @@ const main = async () => {
             throw new Error("Not a right action value");
     }
 }
+
+!oneOff && process.on("uncaughtException", async function(e) {
+    if(action === "report") {
+        log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
+        setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
+    } else if(action === "update" || action === "sync") {
+        log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
+        setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
+    } else {
+        log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}.`)
+    }
+});
 
 main()
 .then(() => console.log("Done!"))
