@@ -50,14 +50,24 @@ const main = async () => {
 }
 
 !oneOff && process.on("uncaughtException", async function(e) {
-    if(action === "report") {
-        log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-        setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
-    } else if(action === "update" || action === "sync") {
-        log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-        setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
-    } else {
-        log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}.`)
+    switch (action) {
+        case "sync":
+            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
+            setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
+            break;
+
+        case "update":
+            log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
+            setTimeout(updateProcess, 1000 * 60 * argv.rebootMinutes);
+            break;
+
+        case "report":
+            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
+            setTimeout(reportUnredeemedProcess, 1000 * 60 * argv.rebootMinutes);
+            break;
+        
+        default:
+            log(`Uncaught exception in ${action} process: ${e.toString()}. Process shutdown...`, 1)
     }
 });
 
