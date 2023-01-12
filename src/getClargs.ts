@@ -32,7 +32,7 @@ const argv = yargs(process.argv.slice(2))
     },
     rebootMinutes: {
         type: "number",
-        default: 60,
+        default: 1,
         description: "Pause time if error occurs before restarting process"
     },
     intervalHours: { 

@@ -49,21 +49,26 @@ const main = async () => {
     }
 }
 
+const restartNewService = (service: () => void) => {
+    log(`Process will restart in ${argv.rebootMinutes}`, 1);
+    setTimeout(service, 1000 * 60 * argv.rebootMinutes);
+}
+
 process.on("uncaughtException", async function(e) {
     switch (action) {
         case "sync":
-            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-            oneOff ? log("One-off sync process shutdown...") : setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
+            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}`, 1);
+            oneOff ? log("One-off sync process shutdown...") : restartNewService(syncRetryablesProcess);
             break;
 
         case "update":
-            log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-            oneOff ? log("One-off update process shutdown...") : setTimeout(updateProcess, 1000 * 60 * argv.rebootMinutes);
+            log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}`, 1)
+            oneOff ? log("One-off update process shutdown...") : restartNewService(updateProcess);
             break;
 
         case "report":
-            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-            oneOff ? log("One-off report process shutdown...") :setTimeout(reportUnredeemedProcess, 1000 * 60 * argv.rebootMinutes);
+            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}`, 1)
+            oneOff ? log("One-off report process shutdown...") : restartNewService(reportUnredeemedProcess);
             break;
         
         default:
