@@ -49,21 +49,21 @@ const main = async () => {
     }
 }
 
-!oneOff && process.on("uncaughtException", async function(e) {
+process.on("uncaughtException", async function(e) {
     switch (action) {
         case "sync":
             log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-            setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
+            oneOff ? log("One-off sync process shutdown...") : setTimeout(syncRetryablesProcess, 1000 * 60 * argv.rebootMinutes);
             break;
 
         case "update":
             log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-            setTimeout(updateProcess, 1000 * 60 * argv.rebootMinutes);
+            oneOff ? log("One-off update process shutdown...") : setTimeout(updateProcess, 1000 * 60 * argv.rebootMinutes);
             break;
 
         case "report":
             log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}. restarting in ${argv.rebootMinutes}`, 1)
-            setTimeout(reportUnredeemedProcess, 1000 * 60 * argv.rebootMinutes);
+            oneOff ? log("One-off report process shutdown...") :setTimeout(reportUnredeemedProcess, 1000 * 60 * argv.rebootMinutes);
             break;
         
         default:
