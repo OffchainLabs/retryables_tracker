@@ -1,26 +1,27 @@
 import  argv  from './getClargs';
-import {syncRetryablesProcess} from "../tasks/sync";
-import {updateProcess} from "../tasks/update";
-import {reportUnredeemedProcess} from "../tasks/report";
+import {syncRetryablesProcess, syncRetryablesOneOff} from "../tasks/sync";
+import {updateProcess, updateOneOff} from "../tasks/update";
+import {reportUnredeemedProcess, reportUnredeemedOneOff} from "../tasks/report";
 import {sentDontReportProgress} from "../tasks/setDontReport";
 import {appProgress} from "../routes/index";
 import {resetDBProgress} from "../db/resetDB";
 import {initChainsProgress} from "../db/initChains";
-
+import { log } from "../tasks/lib";
+const { oneOff, action }  = argv
 
 const main = async () => {
-    switch (argv.action) {
+    switch (action) {
         case "sync":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
-            return syncRetryablesProcess();
+            return await (oneOff ? syncRetryablesOneOff() :  syncRetryablesProcess());
 
         case "update":
             if(!argv.chainid) throw new Error("Error: arg chainid needed");
-            return updateProcess();
+            return await (oneOff ? updateOneOff() : updateProcess());
 
         case "report":
             if(!argv.chainids) throw new Error("Error: arg chainids needed");
-            return reportUnredeemedProcess();
+            return await (oneOff ? reportUnredeemedOneOff() : reportUnredeemedProcess());
             
         case "start_server":
             return appProgress();
@@ -47,6 +48,33 @@ const main = async () => {
             throw new Error("Not a right action value");
     }
 }
+
+const restartNewService = (service: () => void) => {
+    log(`Process will restart in ${argv.rebootMinutes}`, 1);
+    setTimeout(service, 1000 * 60 * argv.rebootMinutes);
+}
+
+process.on("uncaughtException", async function(e) {
+    switch (action) {
+        case "sync":
+            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}`, 1);
+            oneOff ? log("One-off sync process shutdown...") : restartNewService(syncRetryablesProcess);
+            break;
+
+        case "update":
+            log(`Uncaught exception in ${argv.chainid} ${action} process: ${e.toString()}`, 1)
+            oneOff ? log("One-off update process shutdown...") : restartNewService(updateProcess);
+            break;
+
+        case "report":
+            log(`Uncaught exception in ${argv.chainids.join(",")} ${action} process: ${e.toString()}`, 1)
+            oneOff ? log("One-off report process shutdown...") : restartNewService(reportUnredeemedProcess);
+            break;
+        
+        default:
+            log(`Uncaught exception in ${action} process: ${e.toString()}. Process shutdown...`, 1)
+    }
+});
 
 main()
 .then(() => console.log("Done!"))
