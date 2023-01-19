@@ -68,7 +68,7 @@ export const reportUnredeemed = async (chaindIDOrIds: number[] | number) => {
         unredeemed.length > 1 ? "s" : ""
       };${unredeemed.length > 1 ? " eldest" : ""} initiated at ${new Date(
         l1TimestampCreated * 1000
-      ).toString()} — https://retryable-tx-panel.arbitrum.io/${l1TxHash}. See https://retryablestatus.arbitrum.io/unredeemed/mainnet for all of them.`,
+      ).toString()} — https://retryable-tx-panel.arbitrum.io/tx/${l1TxHash}. See https://retryablestatus.arbitrum.io/unredeemed/mainnet for all of them.`,
       2
     );
   } else {
