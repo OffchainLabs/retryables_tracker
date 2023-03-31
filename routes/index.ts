@@ -39,7 +39,7 @@ app.get(
       where: {
         ArbchainId: 42161,
         status: L1ToL2MessageStatus.FUNDS_DEPOSITED_ON_L2,
-        dontReport: false,
+        dontReport: false
       },
       order: ["l1TimestampCreated"],
       attributes
