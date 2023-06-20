@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@arbitrum/sdk": "3.1.2",
+    "@arbitrum/sdk": "3.1.5",
     "@slack/web-api": "^6.7.2",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
