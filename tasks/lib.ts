@@ -5,13 +5,12 @@ import {
   EventFetcher,
   L1TransactionReceipt,
   L1ToL2MessageStatus,
-  getL1Network
+  getL1Network,
+  getL2Network
 } from "@arbitrum/sdk";
-import { Inbox__factory } from "@arbitrum/sdk/dist/lib/abi/factories/Inbox__factory";
-import {
-  InboxMessageDeliveredEvent,
-  Inbox
-} from "@arbitrum/sdk/dist/lib/abi/Inbox";
+import { Bridge__factory } from "@arbitrum/sdk/dist/lib/abi/factories/Bridge__factory";
+import { Bridge, MessageDeliveredEvent } from "@arbitrum/sdk/dist/lib/abi/Bridge";
+import { InboxMessageKind } from "@arbitrum/sdk/dist/lib/dataEntities/message";
 
 import { WebClient } from "@slack/web-api";
 import dotenv from "dotenv";
@@ -95,6 +94,10 @@ const scanForRetryables = async (
     n.partnerChainIDs.push(42170);
   }
 
+  // Getting bridge address
+  let l2Network = await getL2Network(l2Provider);
+  const bridgeAddress = l2Network.ethBridge.bridge;
+
   const currentL1Block = await l1Provider.getBlockNumber();
   const limit = currentL1Block - blocksFromChainTip;
   const toBlock = Math.min(lastBlockChecked + blocksPerInboxQuery, limit);
@@ -102,23 +105,24 @@ const scanForRetryables = async (
   const eventFetcher = new EventFetcher(l1Provider);
   console.log("checking blocks", lastBlockChecked, toBlock);
 
-  const inboxDeliveredLogs = await eventFetcher.getEvents<
-    Inbox,
-    InboxMessageDeliveredEvent
+  const bridgeMessageDeliveredLogs = await eventFetcher.getEvents<
+    Bridge,
+    MessageDeliveredEvent
   >(
-    Inbox__factory,
+    Bridge__factory,
     // @ts-ignore
-    g => g.filters.InboxMessageDelivered(),
+    g => g.filters.MessageDelivered(),
     {
       fromBlock: lastBlockChecked + 1,
       toBlock,
-      address: inboxAddress
+      address: bridgeAddress
     }
   );
 
-  for (let inboxDeliveredLog of inboxDeliveredLogs) {
-    if (inboxDeliveredLog.data.length === 706) continue; // depositETH bypass
-    const { transactionHash: l1TxHash } = inboxDeliveredLog;
+  for (let bridgeMessageDeliveredLog of bridgeMessageDeliveredLogs) {
+    // Filtering messages here to avoid having the query receipts from messages other than SubmitRetryableTx
+    if (bridgeMessageDeliveredLog.event.kind !== InboxMessageKind.L1MessageType_submitRetryableTx) continue;
+    const { transactionHash: l1TxHash } = bridgeMessageDeliveredLog;
     const rec = new L1TransactionReceipt(
       await l1Provider.getTransactionReceipt(l1TxHash)
     );
