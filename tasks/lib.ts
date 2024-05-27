@@ -10,6 +10,7 @@ import {
 } from "@arbitrum/sdk";
 import { Bridge__factory } from "@arbitrum/sdk/dist/lib/abi/factories/Bridge__factory";
 import { Bridge, MessageDeliveredEvent } from "@arbitrum/sdk/dist/lib/abi/Bridge";
+import { InboxMessageKind } from "@arbitrum/sdk/dist/lib/dataEntities/message";
 
 import { WebClient } from "@slack/web-api";
 import dotenv from "dotenv";
@@ -119,7 +120,8 @@ const scanForRetryables = async (
   );
 
   for (let bridgeMessageDeliveredLog of bridgeMessageDeliveredLogs) {
-    if (bridgeMessageDeliveredLog.event.kind === 12) continue; // EthDeposit kind
+    // Filtering messages here to avoid having the query receipts from messages other than SubmitRetryableTx
+    if (bridgeMessageDeliveredLog.event.kind !== InboxMessageKind.L1MessageType_submitRetryableTx) continue;
     const { transactionHash: l1TxHash } = bridgeMessageDeliveredLog;
     const rec = new L1TransactionReceipt(
       await l1Provider.getTransactionReceipt(l1TxHash)
